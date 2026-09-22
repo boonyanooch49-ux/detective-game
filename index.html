@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แฟ้มคดีลับ: นักสืบไซเบอร์ ภาค 2</title>
+<style>
+  :root{
+    --cream:#EFE6D2;
+    --paper:#F7F1E3;
+    --brown-dark:#2E2013;
+    --brown:#4A3524;
+    --brown-mid:#7A5B3C;
+    --gold:#C9A227;
+    --gold-light:#E4C766;
+    --red:#8C3B2E;
+    --green:#3E5C3A;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Sarabun','Tahoma',sans-serif;
+    background: radial-gradient(circle at 50% 0%, var(--brown) 0%, var(--brown-dark) 70%);
+    color:var(--paper); min-height:100vh;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:20px 16px 60px;}
+  .screen{display:none;animation:fade .35s ease;}
+  .screen.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+  .badge-wrap{width:170px;height:170px;margin:28px auto 10px;position:relative;}
+  .badge-rays{
+    position:absolute;inset:-40px;border-radius:50%;
+    background:repeating-conic-gradient(from 0deg, rgba(228,199,102,.16) 0deg 4deg, transparent 4deg 18deg);
+    animation:spin 40s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .badge{
+    position:relative;width:170px;height:170px;border-radius:50%;
+    border:4px solid var(--gold); box-shadow:0 0 0 6px rgba(46,32,19,.55), 0 10px 30px rgba(0,0,0,.55);
+    overflow:hidden; background:#0e1a3d;
+    animation:badgeIn .7s cubic-bezier(.2,.9,.3,1.2);
+  }
+  @keyframes badgeIn{from{transform:scale(.4) rotate(-25deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
+  .badge img{width:100%;height:100%;object-fit:cover;display:block;}
+
+  h1{font-size:28px;text-align:center;margin:8px 0 2px;letter-spacing:.5px;color:var(--gold-light);}
+  .sub{text-align:center;color:var(--cream);opacity:.75;font-size:13px;margin-bottom:20px;}
+  .typewriter{display:inline-block; border-right:2px solid var(--gold-light); padding-right:3px; animation:blink .8s step-end infinite;}
+  @keyframes blink{50%{border-color:transparent;}}
+
+  .dots{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-bottom:4px;}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(239,230,210,.25);transition:.25s;}
+  .dot.done{background:var(--gold);}
+  .dot.current{background:var(--gold-light);box-shadow:0 0 0 3px rgba(228,199,102,.3);}
+
+  .stamp{
+    position:absolute; top:8px; right:14px; font-weight:800; font-size:13px;
+    padding:5px 10px; border:2px solid; border-radius:6px; letter-spacing:1px;
+    transform:rotate(-12deg) scale(0); opacity:0;
+    animation:stampIn .35s .1s cubic-bezier(.3,1.6,.4,1) forwards;
+  }
+  .stamp.pass{color:var(--green);border-color:var(--green);}
+  .stamp.fail{color:var(--red);border-color:var(--red);}
+  @keyframes stampIn{to{transform:rotate(-12deg) scale(1);opacity:.85;}}
+
+  .confetti{position:fixed;top:-20px;width:8px;height:14px;opacity:.85;animation:fall linear forwards;z-index:5;}
+  @keyframes fall{to{transform:translateY(110vh) rotate(360deg);opacity:.2;}}
+
+  .hub-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .hub-tile{
+    background:var(--paper); color:var(--brown-dark); border-radius:10px; padding:14px 12px;
+    text-align:left; border:1.5px solid #d8cba4; cursor:pointer; position:relative;
+    box-shadow:0 4px 14px rgba(0,0,0,.25); transition:.15s;
+  }
+  .hub-tile:active{transform:scale(.97);}
+  .hub-tile.done{border-color:var(--green); background:#F2F7EE;}
+  .hub-tile .hub-icon{font-size:22px;}
+  .hub-tile .hub-num{font-size:11px;color:var(--brown-mid);margin:4px 0 2px;letter-spacing:.5px;}
+  .hub-tile .hub-name{font-size:13px;font-weight:700;line-height:1.35;}
+  .hub-tile .hub-check{position:absolute;top:8px;right:10px;font-size:14px;color:var(--green);}
+  .hub-tile .hub-score{font-size:11px;color:var(--brown-mid);margin-top:6px;}
+  .hub-tile .hub-len{font-size:10px;color:var(--brown-mid);opacity:.7;margin-top:2px;}
+
+  .hub-back{
+    background:none;border:none;color:var(--gold-light);font-size:13px;padding:0 0 12px;
+    display:block;cursor:pointer;opacity:.85;
+  }
+
+  .round-indicator{font-size:12px;color:var(--brown-mid);font-weight:700;margin-bottom:8px;letter-spacing:.3px;}
+
+  .whack-zone{
+    position:relative; height:230px; background:#fbf5e4; border:1.5px dashed #d8cba4;
+    border-radius:10px; overflow:hidden; margin-bottom:10px;
+  }
+  .bubble{
+    position:absolute; max-width:78%; background:#fff; border:1.5px solid #d8cba4;
+    border-radius:16px; padding:9px 13px; font-size:12.5px; box-shadow:0 4px 10px rgba(0,0,0,.15);
+    cursor:pointer; animation:bubbleIn .25s ease;
+  }
+  @keyframes bubbleIn{from{transform:scale(.6);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .whack-status{font-size:12px;color:var(--brown-mid);margin-bottom:12px;}
+
+  .match-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+  .match-card{
+    background:var(--brown); color:var(--gold-light); border-radius:8px; padding:14px 10px;
+    font-size:12px; text-align:center; cursor:pointer; min-height:64px;
+    display:flex;align-items:center;justify-content:center; transition:.2s; user-select:none;
+  }
+  .match-card.open{background:#fff; color:var(--brown-dark); border:1.5px solid var(--gold);}
+  .match-card.matched{background:#DCE9D5; color:#2c4529; border:1.5px solid var(--green); cursor:default;}
+
+  #screen-certificate .cert{
+    border:6px double var(--gold); border-radius:6px; padding:34px 20px; text-align:center;
+    background: linear-gradient(180deg, #fffaf0, #f7f0dc); color:var(--brown-dark);
+  }
+  #screen-certificate .cert h2{font-size:15px;letter-spacing:3px;color:var(--brown-mid);margin:0 0 4px;}
+  #screen-certificate .cert h1{color:var(--brown-dark);font-size:24px;margin:2px 0 18px;}
+  #screen-certificate .cert-name{font-size:26px;font-weight:800;color:#8a6b17;margin:10px 0;border-bottom:2px solid var(--gold);display:inline-block;padding:0 10px 6px;}
+  #screen-certificate .cert-line{font-size:13px;margin:4px 0;color:var(--brown-mid);}
+  #screen-certificate .cert-badge{width:80px;height:80px;margin:16px auto 4px;border-radius:50%;overflow:hidden;border:3px solid var(--gold);}
+  #screen-certificate .cert-badge img{width:100%;height:100%;object-fit:cover;}
+  #screen-certificate .cert-sign{margin-top:22px;font-size:12px;color:var(--brown-mid);}
+  @media print{
+    body *{visibility:hidden;}
+    #screen-certificate, #screen-certificate *{visibility:visible;}
+    #screen-certificate{position:absolute;top:0;left:0;width:100%;}
+    #screen-certificate .no-print{display:none;}
+  }
+
+  .card{
+    background:var(--paper); color:var(--brown-dark); border-radius:10px;
+    padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.4); position:relative;
+    border:1px solid #d8cba4;
+  }
+  .card::before{
+    content:"";position:absolute; top:-8px; left:20px; width:60px; height:16px;
+    background:var(--brown); border-radius:4px 4px 0 0;
+  }
+  .tag{
+    display:inline-block; background:var(--brown-dark); color:var(--gold-light);
+    font-size:11px; padding:3px 10px; border-radius:20px; margin-bottom:10px;
+    letter-spacing:.5px;
+  }
+  .case-title{font-size:20px; font-weight:700; margin:0 0 10px; color:var(--brown-dark);}
+  .case-text{font-size:15px; line-height:1.7; margin-bottom:16px;}
+
+  input[type=text],input[type=password]{
+    width:100%; padding:12px 14px; border-radius:8px; border:1px solid #c9b98c;
+    font-size:15px; margin-bottom:10px; font-family:inherit;
+  }
+  button{
+    font-family:inherit; cursor:pointer; border:none; border-radius:8px;
+    padding:12px 18px; font-size:15px; font-weight:600; transition:.15s;
+  }
+  .btn-main{background:var(--gold); color:var(--brown-dark); width:100%;}
+  .btn-main:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-main:not(:disabled):hover{background:var(--gold-light);}
+  .choice{
+    display:block; width:100%; text-align:left; background:#fff; color:var(--brown-dark);
+    border:1.5px solid #d8cba4; margin-bottom:8px; padding:12px 14px; border-radius:8px;
+  }
+  .choice:hover{border-color:var(--gold);}
+  .choice.correct{background:#DCE9D5; border-color:var(--green);}
+  .choice.wrong{background:#F1D9D4; border-color:var(--red);}
+
+  .feedback{margin-top:12px; padding:12px 14px; border-radius:8px; font-size:14px; line-height:1.6; display:none;}
+  .feedback.show{display:block;}
+  .feedback.good{background:#DCE9D5; color:#2c4529;}
+  .feedback.bad{background:#F1D9D4; color:#6b2a20;}
+
+  .meter{height:10px;border-radius:6px;background:#e4d9b8;overflow:hidden;margin-bottom:6px;}
+  .meter-fill{height:100%;width:0%;background:var(--red);transition:.25s;}
+  .meter-label{font-size:12px;margin-bottom:14px;color:var(--brown-mid);}
+
+  .bins{display:flex;gap:10px;margin-top:6px;}
+  .bin{
+    flex:1; min-height:120px; border:2px dashed #c9b98c; border-radius:8px; padding:8px;
+    font-size:12px; color:var(--brown-mid); text-align:center;
+  }
+  .bin.over{border-color:var(--gold); background:#fdf6df;}
+  .drag-item{
+    background:#fff; border:1.5px solid #d8cba4; border-radius:6px; padding:8px 10px;
+    margin-bottom:8px; font-size:12.5px; cursor:grab; text-align:left;
+  }
+  .pool{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+
+  .timer-bar{height:6px;background:#e4d9b8;border-radius:4px;overflow:hidden;margin-bottom:14px;}
+  .timer-fill{height:100%;background:var(--red);width:100%;}
+
+  .progress-row{display:flex;justify-content:space-between;font-size:12px;color:var(--cream);opacity:.7;margin-bottom:6px;}
+
+  .summary-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e4d9b8;font-size:14px;}
+  .summary-row:last-child{border-bottom:none;}
+  .total-score{font-size:38px;font-weight:800;color:var(--brown-dark);text-align:center;margin:6px 0 2px;}
+
+  .credit{text-align:center;font-size:12px;color:var(--cream);opacity:.55;margin-top:26px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- COVER -->
+  <div id="screen-cover" class="screen active">
+    <div class="badge-wrap">
+      <div class="badge-rays"></div>
+      <div class="badge"><img src="https://i.ibb.co/MkKGXhFV/IMG-SEGMENT-20260813-132017.png" alt="ตราโรงเรียนมหาวชิราวุธ จังหวัดสงขลา"></div>
+    </div>
+    <h1>แฟ้มคดีลับ: นักสืบไซเบอร์ ภาค 2</h1>
+    <div class="sub"><span class="typewriter" id="typeSub"></span></div>
+    <div class="card">
+      <p class="case-text">มีขบวนการภัยไซเบอร์แทรกซึมเข้ามาในชีวิตดิจิทัลของนักเรียน หน่วยสืบสวนต้องการนักสืบฝึกหัดมาไข 10 คดีย่อย เพื่อรวบรวมเบาะแสไปเปิดโปงคดีใหญ่ แต่ละคดีมีหลายด่านย่อย ใช้เวลาสืบสวนพอสมควร ตั้งใจสืบให้ดี!</p>
+      <button class="btn-main" onclick="goTo('login')">เริ่มปฏิบัติการ</button>
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="screen-login" class="screen">
+    <h1 style="font-size:22px;">ลงทะเบียนนักสืบ</h1>
+    <div class="card">
+      <input type="text" id="in-name" placeholder="ชื่อ-นามสกุล">
+      <input type="text" id="in-class" placeholder="ชั้น เช่น ม.2/3">
+      <input type="text" id="in-number" placeholder="เลขที่">
+      <button class="btn-main" onclick="startGame()">รับคดี</button>
+    </div>
+  </div>
+
+  <!-- HUB -->
+  <div id="screen-hub" class="screen">
+    <h1 style="font-size:20px;">แฟ้มคดีทั้งหมด</h1>
+    <div class="sub" id="hub-sub" style="margin-bottom:14px;"></div>
+    <div class="hub-grid" id="hub-grid"></div>
+    <div class="card" id="hub-cert-card" style="margin-top:16px;text-align:center;display:none;">
+      <p class="case-text" style="margin-bottom:10px;">ไขครบทุกคดีแล้ว! พร้อมรับเกียรติบัตรของคุณ</p>
+      <button class="btn-main" onclick="showSummary()">ดูสรุปผล &amp; รับเกียรติบัตร</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="screen-game" class="screen">
+    <button class="hub-back" onclick="backToHub()">← หน้าหลัก</button>
+    <div class="dots" id="dots"></div>
+    <div class="progress-row">
+      <span id="case-progress">คดีที่ 1 / 11</span>
+      <span id="score-live">คะแนนรวม: 0</span>
+    </div>
+    <div class="card" id="case-container"></div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div id="screen-summary" class="screen">
+    <h1 style="font-size:22px;">ปิดคดี</h1>
+    <div class="card">
+      <div class="total-score" id="final-total">0 / 110</div>
+      <div style="text-align:center;font-size:13px;color:var(--brown-mid);margin-bottom:14px;" id="final-time"></div>
+      <div id="summary-list"></div>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <p class="case-text" style="margin-bottom:8px;">ผลของคุณกำลังถูกส่งไปบันทึกในกระดานเกียรติยศ (เดโมนี้ยังไม่เชื่อมต่อ Google Sheets จริง — เวอร์ชัน Canva Code จะเชื่อมให้อัตโนมัติ)</p>
+      <button class="btn-main" onclick="showCertificate()">รับเกียรติบัตร 🎖️</button>
+      <button class="btn-main" style="margin-top:8px;background:transparent;color:var(--gold-light);border:1.5px solid var(--gold);" onclick="location.reload()">เล่นใหม่อีกครั้ง</button>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <div class="case-title" style="font-size:15px;">แหล่งอ้างอิง / เครดิตข้อมูล</div>
+      <ul style="font-size:12.5px;line-height:2;color:var(--brown-mid);padding-left:18px;margin:0;">
+        <li>เนื้อหาเรื่องข่าวปลอม อ้างอิงแนวทางจาก <a href="https://www.antifakenewscenter.com/" target="_blank" style="color:var(--brown-mid);">ศูนย์ต่อต้านข่าวปลอม ประเทศไทย (antifakenewscenter.com)</a></li>
+        <li>เนื้อหาเรื่องมิจฉาชีพ/แจ้งความออนไลน์ อ้างอิงจาก <a href="https://www.thaipoliceonline.com/" target="_blank" style="color:var(--brown-mid);">ศูนย์ปราบปรามอาชญากรรมทางเทคโนโลยี สำนักงานตำรวจแห่งชาติ (thaipoliceonline.com)</a></li>
+        <li>เนื้อหาเรื่องภัยไซเบอร์/ฟิชชิง อ้างอิงจาก <a href="https://www.thaicert.or.th/" target="_blank" style="color:var(--brown-mid);">ThaiCERT (thaicert.or.th)</a></li>
+        <li>เนื้อหาเรื่องความปลอดภัยออนไลน์/กลั่นแกล้งไซเบอร์ อ้างอิงจาก <a href="https://safeinternetlab.com/" target="_blank" style="color:var(--brown-mid);">dtac Safe Internet Lab (safeinternetlab.com)</a></li>
+        <li>เนื้อหาเรื่องลิขสิทธิ์/การให้เครดิต อ้างอิงจาก <a href="https://www.ipthailand.go.th/th/copyright.html" target="_blank" style="color:var(--brown-mid);">กรมทรัพย์สินทางปัญญา กระทรวงพาณิชย์ (ipthailand.go.th)</a></li>
+        <li>ตราสัญลักษณ์: โรงเรียนมหาวชิราวุธ จังหวัดสงขลา</li>
+      </ul>
+      <p style="font-size:11px;color:var(--brown-mid);opacity:.75;margin:10px 0 0;">* ลิงก์เหล่านี้เป็นแหล่งความรู้ทั่วไปที่เกี่ยวข้องกับหัวข้อ ไม่ได้เป็นแหล่งที่คัดลอกข้อความมาโดยตรง</p>
+    </div>
+    <div class="credit">พัฒนาโดย นางสาวบุญยานุช หนูน้อย</div>
+  </div>
+
+  <!-- CERTIFICATE -->
+  <div id="screen-certificate" class="screen">
+    <div class="cert">
+      <div class="cert-badge"><img src="https://i.ibb.co/MkKGXhFV/IMG-SEGMENT-20260813-132017.png" alt="ตราโรงเรียน"></div>
+      <h2>CERTIFICATE OF ACHIEVEMENT</h2>
+      <h1>เกียรติบัตรนักสืบไซเบอร์</h1>
+      <div class="cert-line">มอบให้เพื่อแสดงว่า</div>
+      <div class="cert-name" id="cert-name">-</div>
+      <div class="cert-line" id="cert-class"></div>
+      <div class="cert-line">ได้ผ่านภารกิจ "แฟ้มคดีลับ: นักสืบไซเบอร์ ภาค 2" ครบทั้ง 11 คดี</div>
+      <div class="cert-line" id="cert-score" style="font-weight:700;margin-top:6px;"></div>
+      <div class="cert-sign">พัฒนาโดย นางสาวบุญยานุช หนูน้อย · โรงเรียนมหาวชิราวุธ จังหวัดสงขลา<br><span id="cert-date"></span></div>
+    </div>
+    <div class="no-print" style="margin-top:16px;display:flex;gap:8px;">
+      <button class="btn-main" onclick="window.print()">พิมพ์ / บันทึกเป็น PDF</button>
+      <button class="btn-main" style="background:transparent;color:var(--gold-light);border:1.5px solid var(--gold);" onclick="goTo('summary')">← กลับหน้าสรุปผล</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ================= GAME DATA ================= */
+const CASES = [
+
+  { id:1, title:"คดีที่ 1: ข่าวปลอมระบาด", type:"mc",
+    rounds:[
+      { text:"พาดหัวข่าวต่อไปนี้ อันไหนคือ 'ข่าวปลอม' ที่น่าจะสร้างขึ้นเพื่อหลอกให้คนแชร์?",
+        choices:["โรงเรียนประกาศหยุดเรียน 3 วัน เนื่องจากน้ำท่วมพื้นที่รอบโรงเรียน","นักวิทยาศาสตร์ยืนยัน! กินช็อกโกแลตทุกวันทำให้สอบผ่านทุกวิชาแน่นอน 100%","กระทรวงศึกษาธิการปรับตารางสอบ O-NET ปีการศึกษานี้"], correct:1,
+        feedbackGood:"ถูกต้อง! ข่าวที่อ้าง 'ผลลัพธ์เกินจริง 100%' แบบไม่มีแหล่งอ้างอิง เป็นสัญญาณคลาสสิกของข่าวปลอม",
+        feedbackBad:"ยังไม่ใช่ครับ สังเกตคำว่า 'ยืนยัน 100%' ที่ไม่มีแหล่งอ้างอิงชัดเจน — นั่นคือธงแดงของข่าวปลอม" },
+      { text:"ข้อใดต่อไปนี้คือข่าวปลอม?",
+        choices:["โรงพยาบาลประกาศงดเยี่ยมไข้ชั่วคราวเนื่องจากไข้หวัดใหญ่ระบาด","แชร์ด่วน! ดื่มน้ำมะนาวผสมเกลือรักษามะเร็งได้ภายใน 7 วัน","เทศบาลประกาศเก็บขยะล่าช้าเนื่องจากถนนซ่อมแซม"], correct:1,
+        feedbackGood:"ถูกต้อง! การอ้างว่าเครื่องดื่มธรรมดารักษาโรคร้ายแรงได้ภายในไม่กี่วัน โดยไม่มีงานวิจัยรองรับ คือสัญญาณข่าวปลอมด้านสุขภาพที่พบบ่อยที่สุด",
+        feedbackBad:"ลองสังเกตอีกครั้ง ข่าวที่อ้างว่ารักษาโรคร้ายแรงด้วยวิธีง่ายๆ ภายในไม่กี่วัน มักเป็นข่าวปลอมด้านสุขภาพ" },
+      { text:"ข้อใดต่อไปนี้คือข่าวปลอม?",
+        choices:["กรมอุตุนิยมวิทยาประกาศเตือนพายุฝนฟ้าคะนองในภาคใต้","นักบินอวกาศ NASA ยืนยันโลกจะมืดสนิท 3 วันเต็มในเดือนหน้า","กระทรวงคมนาคมประกาศปรับราคาทางด่วนปีหน้า"], correct:1,
+        feedbackGood:"ถูกต้อง! ข่าวลักษณะนี้เป็นข่าวลือทางวิทยาศาสตร์ที่วนเวียนมาซ้ำๆ ทุกปีโดยไม่มีหน่วยงานจริงยืนยัน",
+        feedbackBad:"ลองสังเกตอีกครั้ง ข่าวที่อ้างเหตุการณ์ดาราศาสตร์สุดขั้วแบบไม่มีแหล่งข่าววิทยาศาสตร์จริงรองรับ มักเป็นข่าวปลอม" },
+      { text:"ข้อใดต่อไปนี้คือข่าวปลอม?",
+        choices:["ธนาคารแห่งประเทศไทยแจ้งเตือนภัยมิจฉาชีพแอบอ้างเป็นเจ้าหน้าที่ธนาคาร","แจกเงินฟรี 10,000 บาท ทุกคนที่กดลิงก์และแชร์ภายใน 24 ชั่วโมง","โรงเรียนประกาศปิดเทอมเร็วขึ้นเนื่องจากสถานการณ์ฝุ่น PM2.5"], correct:1,
+        feedbackGood:"ถูกต้อง! การแจกเงินฟรีโดยมีเงื่อนไข 'กดลิงก์และแชร์ด่วน' คือรูปแบบคลาสสิกของสแกม/ฟิชชิงที่แฝงมากับข่าวปลอม",
+        feedbackBad:"ลองสังเกตอีกครั้ง ข้อเสนอ 'แจกเงินฟรี' ที่ต้องกดลิงก์และแชร์ด่วน มักเป็นกลลวงฟิชชิง ไม่ใช่ข่าวจริง" }
+    ]},
+
+  { id:2, title:"คดีที่ 2: สัญญาณเตือนภัย", type:"whack",
+    text:"ข้อความจะผุดขึ้นมาทีละข้อความในกรอบด้านล่าง <b>แตะเฉพาะข้อความที่เป็นสัญญาณอันตราย</b> ก่อนมันจะหายไป — แตะข้อความปลอดภัยจะเสียคะแนน! (8 ข้อความ)",
+    items:[
+      {text:"โปรไฟล์เพิ่งสร้างเมื่อวานนี้ ยังไม่มีโพสต์เก่า", flag:true},
+      {text:"มีรูปโปรไฟล์ชัดเจน มีเพื่อนร่วมกันหลายคน", flag:false},
+      {text:"ทักมาขอยืมเงินด่วน อ้างว่าเป็นญาติที่ไม่เคยคุยกันมาก่อน", flag:true},
+      {text:"พูดคุยเรื่องงานอดิเรกทั่วไปตามปกติ", flag:false},
+      {text:"ส่งลิงก์แปลกๆ ให้กดด่วน บอกว่า 'ห้ามบอกใคร'", flag:true},
+      {text:"ขอรหัส OTP ที่เพิ่งได้รับทาง SMS เพื่อ 'ยืนยันตัวตน'", flag:true},
+      {text:"ถามความเห็นเรื่องการบ้านวิชาวิทยาศาสตร์", flag:false},
+      {text:"อ้างว่าคุณถูกรางวัลใหญ่ ให้โอนค่าธรรมเนียมก่อนรับของรางวัล", flag:true}
+    ]},
+
+  { id:3, title:"คดีที่ 3: รหัสผ่านสุดหิน", type:"password",
+    pretest:{ text:"ก่อนเข้าตู้เซฟ ตอบก่อนว่า ทำไมรหัสผ่าน '123456' หรือ 'password' ถึงเป็นรหัสผ่านที่อันตราย?",
+      choices:["เพราะมิจฉาชีพเดาได้ง่ายและอยู่ในลิสต์รหัสยอดฮิตที่แฮกเกอร์ลองก่อนเสมอ","เพราะพิมพ์ยาก จำยาก","เพราะระบบไม่อนุญาตให้ใช้ตัวเลขล้วน"], correct:0 },
+    text:"สร้างรหัสผ่านที่ 'แข็งแรงมาก' เพื่อปลดล็อกตู้เซฟหลักฐาน (ต้องมีตัวพิมพ์ใหญ่ ตัวเลข สัญลักษณ์ และยาวอย่างน้อย 8 ตัว)" },
+
+  { id:4, title:"คดีที่ 4: คัดแยกลิงก์อันตราย", type:"drag",
+    text:"ลากลิงก์แต่ละอันไปยังตะกร้าที่ถูกต้อง (8 ลิงก์)",
+    items:[
+      {text:"https://www.set.or.th", safe:true},
+      {text:"https://www.moe.go.th", safe:true},
+      {text:"https://www.dla.go.th", safe:true},
+      {text:"https://www.chula.ac.th", safe:true},
+      {text:"http://bit.ly/claim-prize-now-2026", safe:false},
+      {text:"http://faceb00k-login-secure.com", safe:false},
+      {text:"http://verify-your-account-truemoney.xyz", safe:false},
+      {text:"http://bank-krungthai-security-check.net", safe:false}
+    ]},
+
+  { id:5, title:"คดีที่ 5: ถอดรหัสลับ", type:"cipher",
+    rounds:[
+      {code:"P4$$W0RD", answer:"password"},
+      {code:"53CUR1TY", answer:"security"},
+      {code:"PR1VACY", answer:"privacy"}
+    ]},
+
+  { id:6
